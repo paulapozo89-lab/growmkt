@@ -351,13 +351,11 @@ async function submitForm(e) {
         `Cliente: ${data.client_name} · Tipo: ${data.report_type} · Periodo: ${data.date_from} a ${data.date_to}`;
 
     try {
-        await fetch(WEBHOOK_URL, {
+        const resp = await fetch(WEBHOOK_URL, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-        // With no-cors we can't read the response, link will arrive by email
     } catch (err) {
         // Webhook error, keep generating message
     }
