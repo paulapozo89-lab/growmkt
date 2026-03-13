@@ -351,28 +351,14 @@ async function submitForm(e) {
         `Cliente: ${data.client_name} · Tipo: ${data.report_type} · Periodo: ${data.date_from} a ${data.date_to}`;
 
     try {
-        const resp = await fetch(WEBHOOK_URL, {
+        // Use no-cors to avoid CORS blocking — Make receives the data but we can't read the response
+        await fetch(WEBHOOK_URL, {
             method: 'POST',
+            mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-
-        if (resp.ok) {
-            try {
-                const result = await resp.json();
-                if (result && result.url) {
-                    // Show the link immediately!
-                    document.getElementById('success-icon').textContent = '✓';
-                    document.getElementById('success-title').textContent = '¡Reporte listo!';
-                    document.getElementById('success-msg').textContent = 'Tu reporte fue generado exitosamente. También recibirás el link por email.';
-                    document.getElementById('report-link-btn').href = result.url;
-                    document.getElementById('report-link-text').textContent = result.url;
-                    document.getElementById('report-link-box').style.display = 'block';
-                }
-            } catch(jsonErr) {
-                // Response not JSON, just show generating message (link comes by email)
-            }
-        }
+        // With no-cors we can't read the response, link will arrive by email
     } catch (err) {
         // Webhook error, keep generating message
     }
