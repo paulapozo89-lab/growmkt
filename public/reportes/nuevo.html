@@ -283,11 +283,16 @@ body::before{content:'';position:fixed;inset:0;background:url("data:image/svg+xm
 
   <!-- SUCCESS SCREEN -->
   <div id="success-screen">
-    <div class="check">✓</div>
-    <h2>Solicitud enviada</h2>
-    <p>Tu reporte se está generando. En 3-5 minutos recibirás el link por email y WhatsApp.</p>
-    <p style="margin-top:12px;font-size:12px" id="success-detail"></p>
-    <button class="another-btn" onclick="resetForm()">Generar otro reporte</button>
+    <div class="check" id="success-icon">⏳</div>
+    <h2 id="success-title">Generando reporte...</h2>
+    <p id="success-msg">Esto tarda 3-5 minutos. Puedes esperar aquí o cerrar — recibirás el link por email.</p>
+    <p style="margin-top:12px;font-size:12px;color:var(--muted)" id="success-detail"></p>
+    <div id="report-link-box" style="display:none;margin-top:28px;padding:20px;background:rgba(0,240,200,0.05);border:1px solid rgba(0,240,200,0.2);border-radius:14px">
+      <p style="font-size:11px;color:var(--muted);margin-bottom:14px;letter-spacing:3px;text-transform:uppercase">Reporte listo ✓</p>
+      <a id="report-link-btn" href="#" target="_blank" style="display:inline-block;background:var(--c);color:#000;font-weight:700;font-size:15px;padding:14px 36px;border-radius:12px;text-decoration:none;font-family:'Space Grotesk',sans-serif">Ver reporte →</a>
+      <p style="margin-top:14px;font-size:11px;color:var(--muted);word-break:break-all" id="report-link-text"></p>
+    </div>
+    <button class="another-btn" onclick="resetForm()" style="margin-top:24px">Generar otro reporte</button>
   </div>
 </div>
 
@@ -339,6 +344,12 @@ async function submitForm(e) {
     data.brand = BRAND;
     data.timestamp = new Date().toISOString();
 
+    // Show generating screen immediately
+    document.getElementById('form-screen').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('success-detail').textContent = 
+        `Cliente: ${data.client_name} · Tipo: ${data.report_type} · Periodo: ${data.date_from} a ${data.date_to}`;
+
     try {
         const resp = await fetch(WEBHOOK_URL, {
             method: 'POST',
@@ -346,18 +357,24 @@ async function submitForm(e) {
             body: JSON.stringify(data)
         });
 
-        if (resp.ok || WEBHOOK_URL === 'YOUR_MAKE_WEBHOOK_URL') {
-            document.getElementById('form-screen').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
-            document.getElementById('success-detail').textContent = 
-                `Cliente: ${data.client_name} · Tipo: ${data.report_type} · Periodo: ${data.date_from} a ${data.date_to}`;
+        if (resp.ok) {
+            try {
+                const result = await resp.json();
+                if (result && result.url) {
+                    // Show the link immediately!
+                    document.getElementById('success-icon').textContent = '✓';
+                    document.getElementById('success-title').textContent = '¡Reporte listo!';
+                    document.getElementById('success-msg').textContent = 'Tu reporte fue generado exitosamente. También recibirás el link por email.';
+                    document.getElementById('report-link-btn').href = result.url;
+                    document.getElementById('report-link-text').textContent = result.url;
+                    document.getElementById('report-link-box').style.display = 'block';
+                }
+            } catch(jsonErr) {
+                // Response not JSON, just show generating message (link comes by email)
+            }
         }
     } catch (err) {
-        // If webhook not configured, show success anyway for demo
-        document.getElementById('form-screen').style.display = 'none';
-        document.getElementById('success-screen').style.display = 'block';
-        document.getElementById('success-detail').textContent = 
-            `Cliente: ${data.client_name} · Tipo: ${data.report_type}`;
+        // Webhook error, keep generating message
     }
 
     btn.classList.remove('loading');
@@ -374,3 +391,4 @@ function resetForm() {
 </script>
 </body>
 </html>
+
