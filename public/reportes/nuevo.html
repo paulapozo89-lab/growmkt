@@ -333,6 +333,62 @@ if (sessionStorage.getItem('auth') === '1') {
     document.getElementById('form-screen').style.display = 'block';
 }
 
+let pollingInterval = null;
+
+function startPolling(handle, submitTime) {
+    const BASE = 'https://reportes.growmkt.mx/reportes/';
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    let dots = 0;
+    const titleEl = document.getElementById('success-title');
+    const dotsInterval = setInterval(() => {
+        dots = (dots + 1) % 4;
+        titleEl.textContent = 'Generando reporte' + '.'.repeat(dots);
+    }, 500);
+
+    pollingInterval = setInterval(async () => {
+        attempts++;
+        if (attempts > maxAttempts) {
+            clearInterval(pollingInterval);
+            clearInterval(dotsInterval);
+            titleEl.textContent = 'Generando reporte...';
+            document.getElementById('success-msg').textContent = 
+                'El reporte tardó más de lo esperado. Revisa tu email cuando esté listo.';
+            return;
+        }
+
+        try {
+            const res = await fetch(
+                `https://api.github.com/repos/paulapozo89-lab/growmkt/contents/public/reportes`,
+                { headers: { 'Accept': 'application/vnd.github+json' } }
+            );
+            const files = await res.json();
+            const match = files
+                .filter(f => f.name.startsWith(handle + '-') && f.name.endsWith('.html') && f.name !== 'nuevo.html')
+                .sort((a, b) => b.name.localeCompare(a.name))[0];
+
+            if (match) {
+                const reportUrl = BASE + match.name;
+                try {
+                    const check = await fetch(reportUrl, { method: 'HEAD' });
+                    if (check.ok) {
+                        clearInterval(pollingInterval);
+                        clearInterval(dotsInterval);
+                        document.getElementById('success-icon').textContent = '✓';
+                        document.getElementById('success-title').textContent = '¡Reporte listo!';
+                        document.getElementById('success-msg').textContent = 
+                            'Tu reporte fue generado. También te llegará por email.';
+                        document.getElementById('report-link-btn').href = reportUrl;
+                        document.getElementById('report-link-text').textContent = reportUrl;
+                        document.getElementById('report-link-box').style.display = 'block';
+                    }
+                } catch(e) {}
+            }
+        } catch(e) {}
+    }, 15000);
+}
+
 async function submitForm(e) {
     e.preventDefault();
     const btn = document.getElementById('submit-btn');
@@ -344,11 +400,13 @@ async function submitForm(e) {
     data.brand = BRAND;
     data.timestamp = new Date().toISOString();
 
-    // Show generating screen immediately
     document.getElementById('form-screen').style.display = 'none';
     document.getElementById('success-screen').style.display = 'block';
     document.getElementById('success-detail').textContent = 
         `Cliente: ${data.client_name} · Tipo: ${data.report_type} · Periodo: ${data.date_from} a ${data.date_to}`;
+
+    const submitTime = new Date();
+    startPolling(data.handle_ig, submitTime);
 
     try {
         const resp = await fetch(WEBHOOK_URL, {
@@ -356,16 +414,19 @@ async function submitForm(e) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
         });
-    } catch (err) {
-        // Webhook error, keep generating message
-    }
+    } catch (err) {}
 
     btn.classList.remove('loading');
     btn.disabled = false;
 }
 
 function resetForm() {
+    if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
     document.getElementById('success-screen').style.display = 'none';
+    document.getElementById('report-link-box').style.display = 'none';
+    document.getElementById('success-icon').textContent = '⏳';
+    document.getElementById('success-title').textContent = 'Generando reporte...';
+    document.getElementById('success-msg').textContent = 'Esto tarda 3-5 minutos. Puedes esperar aquí o cerrar — recibirás el link por email.';
     document.getElementById('form-screen').style.display = 'block';
     document.getElementById('report-form').reset();
     document.querySelector('#rt-combined').checked = true;
@@ -374,4 +435,5 @@ function resetForm() {
 </script>
 </body>
 </html>
+
 
