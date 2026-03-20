@@ -1,9 +1,10 @@
 # Deploy Configuration — Social Listening + Metrics Reports
 
 ## GitHub Access
-- **Token**: `<SET_GITHUB_PAT_HERE>`
+- **Token**: read from environment variable `$GITHUB_DEPLOY_TOKEN`
 - **Account**: paulapozo89-lab
 - Token has fine-grained access to: somosestrategia, growmkt
+- To set: add `export GITHUB_DEPLOY_TOKEN="<your-token>"` to `~/.zshrc`
 
 ## Repos & Domains
 
@@ -37,9 +38,10 @@
 
 ## API Upload Method
 ```python
-import base64, json, urllib.request
+import base64, json, os, urllib.request
 
-def upload_to_github(filepath, repo_path, repo, token, message="feat: add report"):
+def upload_to_github(filepath, repo_path, repo, token=None, message="feat: add report"):
+    token = token or os.environ["GITHUB_DEPLOY_TOKEN"]
     with open(filepath, 'rb') as f:
         b64 = base64.b64encode(f.read()).decode()
     
