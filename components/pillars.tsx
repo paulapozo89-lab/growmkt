@@ -49,7 +49,7 @@ const pillars = [
 
 export function Pillars() {
   return (
-    <section className="relative bg-[#F7F8FB] py-16 md:py-32 lg:py-40 overflow-hidden">
+    <section id="que-hacemos" className="relative bg-[#F7F8FB] py-16 md:py-32 lg:py-40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-5 md:px-12">
         <div className="max-w-2xl mb-20">
           <Reveal>

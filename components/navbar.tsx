@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 const links = [
   { href: '#que-hacemos', label: 'Qué hacemos' },
@@ -13,12 +14,31 @@ const links = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith('#')) return
+
+    e.preventDefault()
+    setMenuOpen(false)
+
+    // If not on homepage, navigate there first
+    if (pathname !== '/') {
+      window.location.href = '/' + href
+      return
+    }
+
+    const el = document.querySelector(href)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [pathname])
 
   return (
     <nav
@@ -42,15 +62,26 @@ export function Navbar() {
 
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-8">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-white/50 text-sm font-semibold tracking-wide hover:text-coral transition-colors duration-300"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {links.map((link) =>
+            link.href.startsWith('#') ? (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleClick(e, link.href)}
+                className="text-white/50 text-sm font-semibold tracking-wide hover:text-coral transition-colors duration-300 cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-white/50 text-sm font-semibold tracking-wide hover:text-coral transition-colors duration-300"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
           <a
             href="https://wa.me/524428171042?text=Hola%20GROW%2C%20me%20interesa%20agendar%20un%20diagn%C3%B3stico"
             target="_blank"
@@ -76,16 +107,27 @@ export function Navbar() {
         <div className={`fixed inset-0 bg-surface/98 backdrop-blur-3xl flex flex-col items-center justify-center gap-8 transition-all duration-500 md:hidden ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}>
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className="text-white/70 text-2xl font-bold hover:text-coral transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {links.map((link) =>
+            link.href.startsWith('#') ? (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={(e) => handleClick(e, link.href)}
+                className="text-white/70 text-2xl font-bold hover:text-coral transition-colors cursor-pointer"
+              >
+                {link.label}
+              </a>
+            ) : (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="text-white/70 text-2xl font-bold hover:text-coral transition-colors"
+              >
+                {link.label}
+              </Link>
+            )
+          )}
           <a
             href="https://wa.me/524428171042?text=Hola%20GROW%2C%20me%20interesa%20agendar%20un%20diagn%C3%B3stico"
             target="_blank"
