@@ -127,6 +127,73 @@ Caso típico: una foto cuadrada de Instagram que se necesita en Reel y LinkedIn 
 4. **Ejecutar `PIXA:edit_image`** con `action: "expand"` para cada formato
 5. **Descargar y entregar** ambos paths
 
+### WF-6: Reel multi-escena con storyboard previo ⭐ (default para reels)
+
+**Cuándo usar:** SIEMPRE que Paula pida un reel, video promocional, spot, o cualquier video de más de 5 segundos. Los modelos generan máximo 5-10s por prompt, así que reels largos = múltiples clips encadenados.
+
+**Filosofía:** validar barato (imágenes) antes de gastar caro (video). Mantener consistencia visual entre escenas usando keyframes aprobados como base.
+
+#### Pasos
+
+1. **Brief con Paula:**
+   - ¿Para qué cliente?
+   - Duración total del reel (típico: 15-30s = 3-6 escenas de 5s)
+   - Mensaje/historia central
+   - ¿Hay sujeto recurrente que debe mantenerse consistente entre escenas? (persona, producto, locación)
+
+2. **Proponer storyboard escrito:** antes de generar nada, escribir las N escenas como texto numerado para que Paula apruebe la narrativa. Ejemplo:
+   ```
+   Escena 1 (0-5s): Avión despegando al amanecer, vista aérea
+   Escena 2 (5-10s): Cocktail siendo servido en infinity pool
+   Escena 3 (10-15s): Pareja caminando por playa al atardecer
+   Escena 4 (15-20s): Logo de Viajes LeGrand sobre sunset
+   ```
+
+3. **Esperar aprobación de la narrativa.** No avanzar sin OK.
+
+4. **Generar storyboard visual con modelo BARATO:**
+   - Usar **Flux Klein 4B** (~1 crédito por imagen)
+   - Generar 1 keyframe por escena con prompts encadenados que mantengan consistencia
+   - Si hay sujeto recurrente: generar primero el "hero shot" del sujeto y reutilizarlo como `attachments` en las demás
+   - Confirmar con Paula: *"Voy a generar N keyframes con Flux Klein 4B, costo total ~N créditos. ¿Procedo?"*
+
+5. **Entregar storyboard visual a Paula** y pedir aprobación escena por escena:
+   *"Aquí están los 4 keyframes. ¿Cuáles apruebas para animar? Si alguno no te late, lo regenero antes de pasar a video."*
+
+6. **Iterar imágenes hasta aprobación total.** Es mucho más barato regenerar imágenes que regenerar video.
+
+7. **Calcular costo de animación y confirmar:**
+   - Default: Kling v2.5 Turbo Pro (~12 créditos por video de 5s)
+   - Multiplicar por número de escenas aprobadas
+   - Avisar: *"Animar las N escenas aprobadas con Kling Turbo Pro = ~X créditos. ¿Procedo?"*
+   - Si Paula pide calidad premium para alguna escena específica (típico: la primera o el cierre), proponer Veo 3.1 SOLO para esa y advertir el costo extra (~70 créditos)
+
+8. **Animar SOLO las escenas aprobadas:**
+   - `PIXA:generate_media` con `media_type: "video"`, modelo Kling, `attachments: [keyframe_aprobado]`
+   - Prompt describe el MOVIMIENTO deseado (no la escena, ya está en el keyframe): *"slow camera dolly forward, gentle wave motion, golden hour lighting maintained"*
+   - Lanzar las N animaciones en paralelo si el MCP lo permite
+
+9. **Polling y descarga:**
+   - `PIXA:get_job_status` por cada job
+   - `PIXA:get_download_url` cuando estén listos
+   - Guardar todos en `~/Downloads/reels/[cliente]_[fecha]/escena_01.mp4`, `escena_02.mp4`, etc.
+
+10. **Entregar a Paula con instrucciones de ensamble:**
+    ```
+    Listo, 4 clips en [path]. Para CapCut:
+    - Orden: escena_01 → escena_02 → escena_03 → escena_04
+    - Duración total: ~20s
+    - Sugerencia: agrega voz de ElevenLabs y el logo de Viajes LeGrand al cierre
+    - Música recomendada: [opcional, sugerir mood]
+    ```
+
+#### Reglas críticas del WF-6
+
+- **NUNCA generar video sin aprobación previa del storyboard visual.** Validar barato siempre.
+- **NUNCA mezclar modelos de video distintos en el mismo reel** sin avisar — la coherencia visual entre Veo y Kling es notablemente diferente.
+- **Si Paula pide "un reel completo de un solo prompt"**, explicarle que técnicamente no es posible hoy y ofrecer este workflow como alternativa.
+- **Presupuesto típico de un reel de 20s con este workflow:** ~5 créditos storyboard + ~48 créditos animación = ~53 créditos. Equivale a ~10 reels/mes con el plan Pro de 600 créditos.
+
 ### WF-5: Editar imagen existente preservando estilo (Flux Kontext)
 
 Caso típico: tienes una foto del cliente que casi funciona pero necesita cambios (cambiar fondo, agregar elemento, modificar color de un objeto).
