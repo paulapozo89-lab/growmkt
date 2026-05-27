@@ -1,13 +1,17 @@
 ---
 name: content-grid-captioner
 description: >
-  Arma parrillas de contenido completas para redes sociales. Recibe gráficos sueltos del diseñador y genera
-  el PPTX final con la plantilla GROW: ordena por fechas según la cadencia de la estrategia, asigna formatos
-  (reel, post, carrusel, historia), escribe captions, inserta logo del cliente y entrega el documento listo.
-  Se activa con: 'arma la parrilla', 'hazme los captions', 'completa la parrilla', 'genera los copies',
-  'organiza los contenidos', 'monta el calendario', o cuando el usuario suba gráficos/imágenes de contenido
-  para redes que necesiten organizarse en una parrilla. También cuando suba una parrilla existente (PPTX, PDF,
-  Google Slides) y pida llenar los captions. Complementa al skill social-media-copywriter.
+  FASE FINAL de una parrilla: convierte diseños gráficos ya terminados en un PPTX con plantilla GROW
+  (slides con caption + imagen + branding). Tiene 2 modos: (A) recibe gráficos sueltos del diseñador
+  y arma la parrilla completa con fechas, formatos y captions; (B) recibe una parrilla PPTX/PDF/Google
+  Slides a medio llenar y completa los captions faltantes. El output es SIEMPRE un .pptx final listo
+  para presentar al cliente. Se activa SOLO cuando: el usuario sube imágenes/gráficos PNG/JPG diseñados
+  pidiendo armarlos en parrilla, o sube un PPTX/PDF/Slides existente pidiendo llenar captions, o dice
+  'arma el PPTX de la parrilla con estos diseños', 'monta el calendario en PowerPoint', 'completa los
+  captions de esta parrilla', 'organiza estos contenidos en slides'.
+  NO usar este skill cuando: no hay diseños subidos todavía y se necesita investigar + crear la parrilla
+  desde cero (usar content-strategy-creator), o el usuario pide un copy/post suelto sin contexto de
+  parrilla (usar social-media-copywriter).
 ---
 
 # Content Grid Captioner — Skill para Parrillas de Contenido
