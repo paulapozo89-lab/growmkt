@@ -1,6 +1,6 @@
 ---
 name: social-listening
-description: "Social listening + social media metrics + combined reporting. Generates branded reports (HTML + PDF slides + Word) with auto-deploy. 3 modes: solo listening, solo metrics, combined. Dual branding SE/GROW. Triggers: 'social listening', 'monitoreo de marca', 'reporte de redes', 'reporte integral', 'reporte completo', 'métricas de redes', 'engagement report', 'benchmarking', 'escucha social', 'menciones de marca', 'qué se dice de', 'share of voice', 'analizar cuenta', 'comparar meses', 'reporte combinado'. Also triggers on Apify CSV/JSON uploads. Use for any social/digital analytics report request."
+description: "Social listening + social media metrics + combined reporting. Generates branded reports (HTML + PDF slides + Word) with auto-deploy. 3 modes: solo listening, solo metrics, combined. Dual branding SE/GROW. Covers Instagram, Facebook, TikTok, YouTube, X/Twitter, and web mentions. Supports manual data input (user types numbers in chat) and multi-account benchmarking side-by-side. Triggers: 'social listening', 'monitoreo de marca', 'reporte de redes', 'reporte integral', 'reporte completo', 'métricas de redes', 'engagement report', 'benchmarking', 'escucha social', 'menciones de marca', 'qué se dice de', 'share of voice', 'analizar cuenta', 'comparar meses', 'reporte combinado', 'reporte de X', 'reporte de Twitter', 'reporte de Instagram', 'reporte de TikTok', 'reporte de Facebook', 'reporte de YouTube', 'comparar cuentas'. Also triggers on Apify CSV/JSON uploads or Meta Business Suite exports. Use for any social/digital analytics report request."
 ---
 
 # Social Listening + Social Media Reports — Skill Unificado
@@ -37,6 +37,23 @@ Skill que genera reportes profesionales de presencia digital en 3 modalidades, c
 
 IMPORTANTE: Siempre leer el archivo brand-*.md correspondiente antes de generar el reporte.
 
+## ⚡ Pipeline Automatizado (Vercel Serverless)
+
+Existe un formulario web que genera reportes automáticamente sin intervención manual:
+- **URL**: `somosestrategia.vercel.app/reportes/nuevo.html` (password: SE2026)
+- **Endpoint**: `/api/generate-report.js` en Vercel Pro (maxDuration: 300s)
+- **Flow**: Form → Apify IG → Claude ×3 secuencial (análisis + propuesta + listening) → HTML con 15 gráficas Chart.js → GitHub → link automático
+
+### Limitaciones del pipeline automatizado:
+- **Facebook**: Para cliente SE usa **Metricool MCP** (confiable). Para cliente GROW: preguntar a Paula si pasa archivo de Meta Business Suite o si se scrapea. Para páginas con acceso admin propio: Meta Graph API. Para competidores sin acceso: web_search (intermitente). Scrapers de Apify NO funcionan (bloqueados por FB).
+- **Rate limit Anthropic**: 30K tokens/min — las 3 llamadas a Claude corren en secuencia con 15s delay entre cada una
+- **Tiempo total**: ~180s por reporte combinado
+- **Labels**: Todas en español (Prom. Likes, Comentarios por Mes, etc.)
+
+### Cuándo usar el pipeline vs la skill manual:
+- **Pipeline (formulario)**: Reportes estándar de clientes, cualquier persona puede solicitarlos
+- **Skill manual (aquí en Claude)**: Reportes que requieren mayor calidad, análisis profundo, reportes con múltiples plataformas o FB de competidores, presentaciones PPTX, documentos Word
+
 ## Periodo de análisis
 
 **CRÍTICO:** El usuario define las fechas. Tanto el listening (web search + Apify) como las métricas (Apify scrape) deben usar EL MISMO rango de fechas. Preguntar siempre:
@@ -62,15 +79,20 @@ Leer `references/apify-setup.md` para configuración de cada actor.
 
 #### Para Listening:
 1. **Web search** — Buscar menciones en medios usando el buscador. 3-5 queries con keywords del sujeto.
-2. **Facebook Posts Search** — Actor `TMBawM4LZpKN15DZX` (keyword, max 30 chars)
-3. **YouTube Search** — Actor `sK6m1ZqXSX3AEJMQd`
-4. **Instagram** — Actor `shu8hvrXbJbY3Eb9W` (requiere URL de perfil, resultsType: "posts")
-5. **Facebook Comments** — Actor `apify/facebook-comments-scraper` (requiere URLs de posts)
+2. **Instagram** — Actor `shu8hvrXbJbY3Eb9W` (requiere URL de perfil, resultsType: "posts")
+3. **YouTube Search** — Actor `bernardo~youtube-scraper`
+4. **Facebook Comments** — Actor `us5srxAYnsrkgUv2v` (requiere URLs de posts)
 
 #### Para Metrics:
-1. **Instagram Profile** — Actor `shu8hvrXbJbY3Eb9W` (resultsType: "details")
-2. **Instagram Posts** — Actor `shu8hvrXbJbY3Eb9W` (resultsType: "posts", limit 50+)
-3. **Facebook Page** — Actor `apify/facebook-pages-scraper` (URL de página)
+1. **Instagram Profile** — Actor `shu8hvrXbJbY3Eb9W` (resultsType: "details") ✅
+2. **Instagram Posts** — Actor `shu8hvrXbJbY3Eb9W` (resultsType: "posts", limit 50+) ✅
+3. **Facebook** — La ruta depende del branding del reporte:
+   - **Cliente SE** → usar **Metricool MCP** (credenciales en `~/.zshrc`: blogId=3780305, userId=369001). Es la ruta confiable y siempre disponible.
+   - **Cliente GROW** → **preguntar a Paula primero**: (a) ¿me pasas el export de Meta Business Suite (CSV)?, o (b) ¿scrapeamos?
+   - **Páginas con acceso admin propio (cualquier marca)** → Meta Graph API con `FB_GRAPH_TOKEN`.
+   - **Competidores sin acceso admin** → Claude web_search (intermitente). Scrapers de Apify NO funcionan (todos bloqueados por FB, probados mar 2026).
+4. **TikTok** — Actor `clockworks~tiktok-scraper` (no fully tested)
+5. **YouTube** — Actor `bernardo~youtube-scraper` (no fully tested)
 
 #### Para Combinado:
 Ejecutar TODO lo anterior.
@@ -304,6 +326,39 @@ Cuando el usuario pide "compara febrero vs marzo" o "evolución mes a mes":
 | Seguidores | 30,000 | 31,598 | +1,598 (+5.3%) | ↑ |
 | Eng. Rate | 1.1% | 1.33% | +0.23% | ↑ |
 
+## Benchmarking multi-cuenta (side-by-side)
+
+Cuando el usuario pide comparar 2+ cuentas distintas (ej: "compara a Dorantes vs Felifer Macías", "benchmark de las 3 marcas de hotel"):
+
+1. **Recolectar datos de cada cuenta por separado** (una corrida de Apify por cuenta)
+2. **Generar tabla comparativa side-by-side** con columna por cuenta y filas por métrica
+3. **Generar charts de barras side-by-side** (no overlay) para: Seguidores, Engagement Rate, Posts/Semana, Views Promedio
+4. **Color-code en la tabla**: verde (#00A87D) para la cuenta ganadora por métrica, rojo (#FF6B6B) para la perdedora
+5. **Conclusiones cruzadas**: identificar fortalezas y debilidades relativas de cada cuenta
+
+**Formato tabla benchmark:**
+
+| Métrica | Cuenta A | Cuenta B | Cuenta C | Líder |
+|---|---|---|---|---|
+| Seguidores | 30,000 🟢 | 18,500 | 12,200 🔴 | A |
+| Eng. Rate | 1.3% | 2.8% 🟢 | 0.9% 🔴 | B |
+| Posts/Semana | 4.2 | 3.1 | 6.5 🟢 | C |
+
+## Inputs manuales (datos sin archivo)
+
+Cuando el usuario NO sube un CSV/JSON y en su lugar escribe los números directamente en el chat (ej: "mi cuenta tiene 12,500 seguidores, 850 likes promedio, 45 comentarios promedio, 8 posts al mes"):
+
+1. **Parsear lo que esté disponible** (followers, likes, comentarios, posts)
+2. **Generar reporte con secciones disponibles** únicamente
+3. **Marcar secciones sin datos** como `[DATOS PENDIENTES — requiere scrape de perfil/posts]`
+4. **Calcular métricas derivadas** solo si los inputs lo permiten (ej: ER necesita followers + likes promedio)
+5. **NO inventar datos faltantes**. Mejor decir "No disponible" o pedir scrape adicional.
+
+**Casos típicos:**
+- Solo perfil (sin posts): genera card de overview + nota "se requiere scrape de publicaciones"
+- Solo posts (sin perfil): omite seguidores y ER, mantén lo demás
+- Datos parciales: marca campos faltantes, NO uses placeholders genéricos
+
 ## Estructura de archivos del skill
 
 ```
@@ -324,6 +379,29 @@ pip install matplotlib numpy pandas --break-system-packages
 npm install docx pptxgenjs
 ```
 
+## Manejo de NaN (técnico — exportar a JSON)
+
+Cuando se exportan datos de pandas/numpy a JSON para alimentar el docx-js o pptxgenjs, los valores `NaN` rompen el parser. Siempre limpiar antes:
+
+```python
+import json, math
+
+def clean_nan(obj):
+    if isinstance(obj, float) and math.isnan(obj):
+        return None
+    if isinstance(obj, dict):
+        return {k: clean_nan(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean_nan(v) for v in obj]
+    return obj
+
+# Uso:
+data_clean = clean_nan(data)
+json.dump(data_clean, open('data.json', 'w'))
+```
+
+Aplicar también cuando se calculen métricas con divisiones (ej: engagement rate cuando followers=0).
+
 ## Checklist antes de entregar
 
 - [ ] ¿Se preguntó al usuario tema claro/oscuro?
@@ -335,6 +413,7 @@ npm install docx pptxgenjs
 - [ ] ¿Las conclusiones cruzan datos de todas las fuentes?
 - [ ] ¿No hay recomendaciones de herramientas internas?
 - [ ] ¿El branding es el correcto (SE o GROW)?
+- [ ] Si hay datos de Facebook: ¿se usó la ruta correcta? (SE → Metricool MCP; GROW → archivo o scrape confirmado con Paula)
 - [ ] ¿El HTML tiene logo embebido como base64?
 - [ ] ¿Las tablas tienen overflow-x:auto (scroll en móvil)?
 - [ ] ¿Las conclusiones tienen hallazgos cuanti + cuali?
