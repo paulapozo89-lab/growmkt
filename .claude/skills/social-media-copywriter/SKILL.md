@@ -1,7 +1,18 @@
 ---
 name: social-media-copywriter
 description: >
-  Especialista en redacción de contenido para redes sociales. Usa este skill siempre que el usuario pida crear copies, captions, hilos de Twitter/X, posts de LinkedIn, captions de Instagram, posts de Facebook, guiones cortos para TikTok/Reels, o cualquier contenido textual para redes sociales. También se activa cuando el usuario dice 'escríbeme un post', 'hazme un copy', 'contenido para redes', 'caption para Instagram', 'hilo de Twitter', 'post de LinkedIn', 'texto para Facebook', 'copy para TikTok', 'parrilla de contenido', 'calendario de contenido', 'contenido para stories', 'redacción para redes', 'social media copy', o cuando necesita adaptar un tema, noticia, evento, episodio de podcast, lanzamiento de producto, o campaña a formatos de redes sociales. Incluso si el usuario solo dice 'hazme algo para redes' o 'promueve esto en redes' sin especificar plataforma, usa este skill.
+  Especialista en redacción PUNTUAL para redes sociales: hilos de Twitter/X, posts de LinkedIn,
+  captions sueltos de IG/FB, guiones cortos de TikTok/Reels. Trabaja insumos individuales —UN evento,
+  UNA noticia, UN lanzamiento, UN episodio de podcast— y devuelve bloques de texto listos para copiar
+  y pegar en cada plataforma, adaptados de forma nativa a cada una. El output es SIEMPRE texto en chat
+  (no archivos, no parrillas mensuales). Se activa SOLO cuando: 'escríbeme un post de LinkedIn',
+  'hazme un hilo de Twitter sobre [X]', 'caption para este reel/foto', 'copy para [evento puntual]',
+  'adapta esta noticia a redes', 'redacta el post de [lanzamiento específico]', 'texto para promover
+  [un evento]'.
+  NO usar este skill cuando: el usuario pide una parrilla mensual completa con investigación previa
+  (usar content-strategy-creator), o tiene diseños y quiere armar el PPTX final (usar
+  content-grid-captioner), o necesita una estrategia de marketing amplia más allá del copy (usar
+  marketing-hub).
 ---
 
 # Social Media Copywriter Skill
