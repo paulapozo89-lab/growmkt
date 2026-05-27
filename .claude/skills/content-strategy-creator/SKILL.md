@@ -1,12 +1,17 @@
 ---
 name: content-strategy-creator
 description: >
-  Crea parrillas de contenido completas desde cero para cualquier marca. Investiga tendencias del sector
-  con Apify (scraping IG/TikTok/LinkedIn), Google Trends y web search. Genera calendario en Excel con
-  captions optimizados, copy in, instrucciones de diseño y referencias visuales. Se activa con: 'crea la
-  parrilla', 'hazme el calendario de contenido', 'planea el contenido del mes', 'arma la estrategia de
-  contenido', 'qué publicamos este mes', 'content calendar', 'planeación de contenido', 'investiga
-  tendencias para contenido'. Se complementa con content-grid-captioner para el PPTX final con diseños.
+  PRIMERA FASE de una parrilla de contenido mensual: investiga tendencias del sector con Apify
+  (IG/TikTok/LinkedIn), Google Trends y web search, hace onboarding del cliente si es nuevo, y entrega
+  un EXCEL con el calendario completo (fechas, pilares, formatos, captions, copy in, instrucciones
+  de diseño, referencias visuales). El output es SIEMPRE un .xlsx para aprobación del cliente, NO
+  un PPTX, NO copies sueltos. Se activa SOLO con: 'investiga tendencias para contenido', 'arma la
+  estrategia de contenido del mes', 'planea el contenido mensual desde cero', 'parrilla en Excel',
+  'calendario mensual para [cliente]', 'qué publicamos este mes', 'arma la parrilla de [mes]
+  investigando tendencias'.
+  NO usar este skill cuando: el usuario ya tiene diseños listos y solo pide armar PPTX (usar
+  content-grid-captioner), o pide un copy/post puntual suelto sin parrilla completa (usar
+  social-media-copywriter), o pide solo el research sin generar parrilla (usar marketing-hub).
 ---
 
 # Content Strategy Creator — Parrillas de Contenido desde Cero
