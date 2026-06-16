@@ -3,7 +3,7 @@ name: social-listening
 description: "Social listening + social media metrics + combined reporting. Generates branded reports (HTML + PDF slides + Word) with auto-deploy. 3 modes: solo listening, solo metrics, combined. Dual branding SE/GROW. Covers Instagram, Facebook, TikTok, YouTube, X/Twitter, and web mentions. Supports manual data input (user types numbers in chat) and multi-account benchmarking side-by-side. Triggers: 'social listening', 'monitoreo de marca', 'reporte de redes', 'reporte integral', 'reporte completo', 'métricas de redes', 'engagement report', 'benchmarking', 'escucha social', 'menciones de marca', 'qué se dice de', 'share of voice', 'analizar cuenta', 'comparar meses', 'reporte combinado', 'reporte de X', 'reporte de Twitter', 'reporte de Instagram', 'reporte de TikTok', 'reporte de Facebook', 'reporte de YouTube', 'comparar cuentas'. Also triggers on Apify CSV/JSON uploads or Meta Business Suite exports. Use for any social/digital analytics report request."
 ---
 
-# Social Listening + Social Media Reports — Skill Unificado
+# Social Listening + Social Media Reports — Skill Unificado (v5.2 self-contained)
 
 Skill que genera reportes profesionales de presencia digital en 3 modalidades, con branding dual (Somos Estrategia / GROW), deploy automático a Vercel, y salida en HTML interactivo + PDF slides + Word.
 
@@ -33,14 +33,27 @@ Skill que genera reportes profesionales de presencia digital en 3 modalidades, c
 | **Color alerta** | `#FF6B6B` | `#E5526C` |
 | **Logo HTML** | Embebido como base64 (cyan transparent) | Embebido como base64 (color transparent) |
 | **Logo PDF** | Negro transparent (portada/cierre) + cyan (footer) | Color transparent (portada) + small (footer) |
-| **Brand ref** | `references/brand-se.md` | `references/brand-grow.md` |
+| **Logo SE fuente** | `~/somosestrategia/public/` (cyan, negro y blanco transparent) | — |
+| **Logo GROW fuente** | — | `https://growmkt.mx/assets/grow-logo-color-Dma9RsSM.png` |
 
-IMPORTANTE: Siempre leer el archivo brand-*.md correspondiente antes de generar el reporte.
+**Reglas de logo (ambas marcas):**
+- SIEMPRE usar la imagen PNG real del logo, NUNCA texto sustituto
+- SE en todo caps: SOMOS ESTRATEGIA, sin "+"
+- PNG con transparencia → compositear sobre el fondo destino (skill `image-handler`) antes de insertar en DOCX/PPTX; en HTML embeber base64 con transparencia intacta
+- Proporciones: height = width / (original_width / original_height). NUNCA estirar ni comprimir
+
+## ⚠️ Reglas de terminología y exclusiones (OBLIGATORIAS, no preguntar)
+
+1. **"Total de interacciones"** — NUNCA usar "Engagement total" en ningún entregable (HTML, PPTX, DOCX, gráficas, conclusiones).
+2. **Exclusión política por default:** Adrián Alvaradejo y Carlos Retes NUNCA aparecen en listening, monitoreo, benchmarks ni menciones, salvo que Paula lo pida explícitamente para una tarea específica.
+3. **No conectar a Agustín Dorantes con otros actores políticos** en análisis o conclusiones salvo petición explícita.
+4. **Nunca mencionar herramientas internas** (Apify, Claude, scrapers, MCP) en entregables para cliente.
+5. **Nunca fabricar datos, URLs ni métricas.** Sin dato → "No disponible".
 
 ## ⚡ Pipeline Automatizado (Vercel Serverless)
 
 Existe un formulario web que genera reportes automáticamente sin intervención manual:
-- **URL**: `somosestrategia.vercel.app/reportes/nuevo.html` (password: SE2026)
+- **URL**: `somosestrategia.vercel.app/reportes/nuevo.html` (protegido con password — Paula lo gestiona, no documentarlo aquí)
 - **Endpoint**: `/api/generate-report.js` en Vercel Pro (maxDuration: 300s)
 - **Flow**: Form → Apify IG → Claude ×3 secuencial (análisis + propuesta + listening) → HTML con 15 gráficas Chart.js → GitHub → link automático
 
@@ -75,7 +88,20 @@ Antes de ejecutar CUALQUIER cosa, confirmar:
 
 ### Paso 1: Recolección de datos (Apify + Web Search)
 
-Leer `references/apify-setup.md` para configuración de cada actor.
+**Configuración de actores Apify (cuenta `polito_mkt`) — inline, no requiere archivos externos:**
+
+| Plataforma | Actor | Input clave | Estado |
+|---|---|---|---|
+| Instagram (perfil) | `shu8hvrXbJbY3Eb9W` | `directUrls: ["https://instagram.com/{user}/"]`, `resultsType: "details"`, `resultsLimit: 1` | ✅ Probado |
+| Instagram (posts) | `shu8hvrXbJbY3Eb9W` | `resultsType: "posts"`, `resultsLimit: 40-50` | ✅ Probado |
+| Instagram (comments) | `shu8hvrXbJbY3Eb9W` | `resultsType: "comments"` sobre URLs de posts | ✅ Probado |
+| TikTok | `clockworks~tiktok-profile-scraper` | `{"profiles": ["{user}"], "resultsPerPage": 30}`, timeout 300s | ✅ Probado (reportes Laura) |
+| X / Twitter | `xtdata~twitter-x-scraper` | `{"twitterHandles": ["{user}"], "maxTweets": 30}`, filtrar `author.screen_name` case-insensitive | ✅ Probado (reportes Laura) |
+| YouTube | `bernardo~youtube-scraper` | búsqueda por canal o keyword | ⚠️ No fully tested |
+| Facebook Comments | `us5srxAYnsrkgUv2v` | URLs de posts | ⚠️ Intermitente |
+| Facebook Posts/Pages | — | **NINGÚN scraper de Apify funciona** (bloqueados, probado mar 2026). Usar rutas de la sección Facebook abajo | 🚫 |
+
+Reglas de uso: filtrar siempre por `ownerUsername`/`screen_name` del sujeto y por rango de fechas del periodo. Guardar la respuesta cruda con nombre de archivo distinto al de la variable de procesamiento (evitar sobrescribir).
 
 #### Para Listening:
 1. **Web search** — Buscar menciones en medios usando el buscador. 3-5 queries con keywords del sujeto.
@@ -91,8 +117,9 @@ Leer `references/apify-setup.md` para configuración de cada actor.
    - **Cliente GROW** → **preguntar a Paula primero**: (a) ¿me pasas el export de Meta Business Suite (CSV)?, o (b) ¿scrapeamos?
    - **Páginas con acceso admin propio (cualquier marca)** → Meta Graph API con `FB_GRAPH_TOKEN`.
    - **Competidores sin acceso admin** → Claude web_search (intermitente). Scrapers de Apify NO funcionan (todos bloqueados por FB, probados mar 2026).
-4. **TikTok** — Actor `clockworks~tiktok-scraper` (no fully tested)
-5. **YouTube** — Actor `bernardo~youtube-scraper` (no fully tested)
+4. **TikTok** — Actor `clockworks~tiktok-profile-scraper` (✅ probado en producción)
+5. **X / Twitter** — Actor `xtdata~twitter-x-scraper` (✅ probado en producción)
+6. **YouTube** — Actor `bernardo~youtube-scraper` (no fully tested)
 
 #### Para Combinado:
 Ejecutar TODO lo anterior.
@@ -263,7 +290,17 @@ Los PDFs (tanto slides como documento) DEBEN incluir links clicables a cada cont
 
 ### Paso 6: Deploy automático
 
-Leer `references/deploy-config.md` para tokens y configuración.
+**Configuración de deploy — inline, no requiere archivos externos:**
+
+| Config | SE | GROW |
+|---|---|---|
+| Repo | `paulapozo89-lab/somosestrategia` | `paulapozo89-lab/growmkt` |
+| Dominio | `somosestrategia.vercel.app` | `reportes.growmkt.mx` |
+| Ruta destino | `/reportes/` | `/reportes/` |
+
+**Token:** SIEMPRE `$GITHUB_DEPLOY_TOKEN` desde variable de entorno. NUNCA hardcodear tokens en scripts, commits ni en este skill. Si la variable no está disponible, pedírsela a Paula — no improvisar.
+
+**Git SE:** siempre `git pull --rebase && git push` (el bot de briefings acumula commits en remoto). GROW: inyección explícita del token en la URL del push.
 
 1. Agregar `<meta name="robots" content="noindex, nofollow">` al HTML
 2. Embeber logos como base64 (no URLs externas)
@@ -362,15 +399,12 @@ Cuando el usuario NO sube un CSV/JSON y en su lugar escribe los números directa
 ## Estructura de archivos del skill
 
 ```
-SKILL.md                          ← Este archivo
-scripts/
-  apify_integration.py            ← Script de integración con Apify API
-references/
-  apify-setup.md                  ← Configuración de actores por plataforma
-  brand-se.md                     ← Paleta y reglas visuales Somos Estrategia
-  brand-grow.md                   ← Paleta y reglas visuales GROW Marketing
-  deploy-config.md                ← GitHub token, repos, dominios, flujo de deploy
+SKILL.md    ← Este archivo. SELF-CONTAINED (v5.2): toda la configuración
+              (branding, actores Apify, deploy) está inline. No depende
+              de carpetas references/ ni scripts/ externos.
 ```
+
+Para llamar la API de Apify directamente: `https://api.apify.com/v2/acts/{actor_id}/run-sync-get-dataset-items?token=$APIFY_TOKEN` (token desde env var, nunca hardcodear).
 
 ## Dependencias
 
@@ -412,6 +446,8 @@ Aplicar también cuando se calculen métricas con divisiones (ej: engagement rat
 - [ ] ¿Se filtraron trolleos y ruido?
 - [ ] ¿Las conclusiones cruzan datos de todas las fuentes?
 - [ ] ¿No hay recomendaciones de herramientas internas?
+- [ ] ¿Se usó "Total de interacciones" (NUNCA "Engagement total") en todos los entregables?
+- [ ] ¿Se respetaron las exclusiones políticas por default (Alvaradejo, Retes)?
 - [ ] ¿El branding es el correcto (SE o GROW)?
 - [ ] Si hay datos de Facebook: ¿se usó la ruta correcta? (SE → Metricool MCP; GROW → archivo o scrape confirmado con Paula)
 - [ ] ¿El HTML tiene logo embebido como base64?
