@@ -64,6 +64,30 @@ html,body{height:100%;}body{font-family:'Archivo',sans-serif;background:var(--da
 .pl-it .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px;}
 .pl-z{display:block;color:#99a;font-size:10.5px;margin-left:16px;}
 @media (max-width:640px){#panel{top:auto;left:0;right:0;width:100%;max-width:none;height:52%;transform:translateY(110%);border-radius:14px 14px 0 0;}#panel.open{transform:translateY(0);}}
+
+#nav{background:#111;padding:8px 20px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+#nav::-webkit-scrollbar{display:none;}
+.nv{border:none;background:#232323;color:#bbb;font-family:'Archivo';font-size:12.5px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;flex:0 0 auto;}
+.nv.on{background:var(--pink);color:#fff;}
+#content{display:none;flex:1;min-height:0;overflow-y:auto;background:#141414;padding:18px 20px 40px;}
+#content h2{color:#fff;font-size:16px;font-weight:800;margin:6px 0 4px;}
+#content .sub{color:#889;font-size:11px;margin-bottom:14px;line-height:1.5;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;}
+.card{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:14px 16px;color:#ddd;font-size:12px;line-height:1.5;}
+.card .mes{font-size:15px;font-weight:800;color:#fff;}
+.fbadge{display:inline-block;font-size:10px;font-weight:800;padding:2px 9px;border-radius:10px;margin-left:8px;vertical-align:2px;}
+.f1{background:#2e8b4f22;color:#5fc98a;border:1px solid #2e8b4f;}
+.f3{background:#e0a13a22;color:#e8b45c;border:1px solid #e0a13a;}
+.f5{background:#CE112622;color:#f07a8a;border:1px solid #CE1126;}
+.card .tema{color:var(--blue);font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin:6px 0 4px;}
+.card .kv{margin-top:8px;padding-top:8px;border-top:1px solid #2a2a2a;font-size:11px;color:#aab;}
+.card .kv b{color:#dde;}
+.hito{color:#f0a9b4;}
+.sem{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:-1px;}
+.ev-fecha{font-weight:800;color:#fff;font-size:12.5px;}
+.ev-nom{font-weight:700;color:var(--blue);font-size:13px;margin:2px 0;}
+.ev-meta{color:#99a;font-size:11px;}
+@media (max-width:640px){#content{padding:14px 12px 30px;}.grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
@@ -71,6 +95,12 @@ html,body{height:100%;}body{font-family:'Archivo',sans-serif;background:var(--da
   <div><h1>CORREGIDORA · <span>MAPA DE CALOR ELECTORAL</span></h1>
   <div class="tag">Ayuntamiento 2024 · Cartografía vigente · Planeación territorial 2027</div></div>
   <div class="tag" style="font-weight:800;color:#fff;">GROW <span style="color:var(--pink)">|</span> uso interno</div>
+</div>
+<div id="nav">
+  <button class="nv on" data-v="mapa">🗺 Mapa</button>
+  <button class="nv" data-v="cal">📅 Calendario</button>
+  <button class="nv" data-v="ev">📍 Eventos ancla</button>
+  <button class="nv" data-v="hi">⚖ Hitos legales</button>
 </div>
 <div id="bar">
   <button class="btn on" data-m="blk">Bloques 2027</button>
@@ -86,6 +116,7 @@ html,body{height:100%;}body{font-family:'Archivo',sans-serif;background:var(--da
   <button class="btn tg" id="tgTia">🛒 Tianguis</button>
   <button class="btn tg" id="tgUni">🎓 Universidades</button>
 </div>
+<div id="content"></div>
 <div id="mapwrap">
 <div id="map"></div>
 <div id="legend"></div>
@@ -270,6 +301,56 @@ function refreshPOI(){
 function togglePanel(){document.getElementById('panel').classList.toggle('open');}
 document.getElementById('tgTia').onclick=function(){showTia=!showTia;this.classList.toggle('on');refreshPOI();};
 document.getElementById('tgUni').onclick=function(){showUni=!showUni;this.classList.toggle('on');refreshPOI();};
+
+
+// ===== PESTAÑAS: CALENDARIO / EVENTOS / HITOS =====
+var CALD=[["Jul 2026", "F1", "Economía familiar", "Arranque de bloques: asignación de las 25 coordinaciones y censo de estructura · Jornada vecinal inaugural en La Negreta (sábado) · Patitas con Todo (Parque Tejeda, domingo)", "A · B", "—", "—", "8,158"], ["Ago 2026", "F1", "Regreso a clases", "Jornadas de útiles y asesorías educativas (gestión del comité) en El Romeral y El Calichar · Arranque de agenda universitaria con el inicio de semestre (UAQ Corregidora + TecMilenio) · Jornada vecinal en Los Ángeles", "B · C", "—", "—", "8,084"], ["Sep 2026", "F1", "Identidad y comunidad", "Presencia en fiestas patrias (15-16 sep, El Pueblito y comunidades) · Informe de trabajo del comité (aniversario de la dirigencia) — evento de militancia · Jornada en Charco Blanco", "A", "Arranque de reclutamiento", "Declaratoria de inicio del proceso electoral local (fecha por confirmar, ref. oct 2023)", "5,188"], ["Oct 2026", "F2", "Servicios que se sienten", "OPERACIÓN ANILLO NUEVO: censo casa por casa de las 32 secciones nuevas (todo el mes, coord. Bloque C) · Jornada de servicios en Venceremos (con tianguis El Canal)", "C · B", "50", "Calendario oficial IEEQ → ACTUALIZAR ESTE PLAN", "8,917"], ["Nov 2026", "F2", "Memoria y cercanía", "Presencia en panteones 1-2 nov (El Pueblito y comunidades del sur) · Jornadas en comunidades: Bravo, Presa de Bravo, San Rafael (sábados) · Aniversario Revolución 20 nov", "A", "75", "—", "9,801"], ["Dic 2026", "F2", "Familia", "4 posadas del comité, una por bloque (con registro de asistentes) · Colecta invernal con CNOP · Patitas edición navideña", "A·B·C·D", "100 ✓", "Definición interna del método de selección de candidaturas", "7,337"], ["Ene 2027", "F2→F3", "Militancia", "Rosca de Reyes por bloque (6 ene) · Registro de precandidatura + alta en SNR + responsable de finanzas operando · Gira de militancia: 4 asambleas (una por bloque) en la segunda quincena", "A·B·C·D", "150", "Convenios de coalición (ref. 2024: 19 ene) · INICIO DE PRECAMPAÑA (~19 ene, proyección)", "5,678"], ["Feb 2027", "F3", "Precampaña", "Asambleas de precampaña con militancia: sem 1 Bloque A (El Pueblito), sem 2 Bloque B (La Negreta/Sta. Bárbara), sem 3 Bloques C+D · FIESTA GRANDE DE EL PUEBLITO (primera quincena, por confirmar): presencia personal y familiar SIN clave de precampaña", "A·B·C·D", "350 ✓", "FIN DE PRECAMPAÑA (~17 feb, proyección) · Informes de gastos de precampaña a la UTF", "5,678"], ["Mar 2027", "F4", "Intercampaña (silencio público)", "8M: evento institucional de mujeres del partido · Aniversario del PRI 4 de marzo (militancia) · Arranca capacitación de representantes de casilla · Integración del expediente de registro", "Interno", "450", "Ningún proselitismo público — fase de mayor riesgo legal", "11,035"], ["Abr 2027", "F4→F5", "Registro y arranque", "REGISTRO DE CANDIDATURA (~3-7 abr, proyección) · ARRANQUE DE CAMPAÑA (~15 abr): evento de arranque en El Pueblito centro · Primeros 15 días: barrido del Bloque A completo · Día del Niño 30 abr", "A", "550", "Inicio de campaña (~15 abr) · Topes de gastos: todo se factura y reporta", "12,622"], ["May 2027", "F5", "Campaña total", "Sem 1-2: barrido Bloques B y C (10 de mayo: evento de madres SIN dádivas) · Debates IEEQ · Sem 3: comunidades del sur · Sem 4: CIERRE CENTRAL en El Pueblito (~30-31 may) · Verificación 1 a 1 de los 650 promotores", "B·C·A", "650 ✓", "Última semana de campaña (~2 jun cierre legal, proyección)", "25,164"], ["Jun 2027", "F5", "Defensa del voto", "VEDA (~3-5 jun): cero proselitismo · JORNADA 6 DE JUNIO: representantes en 100% de casillas, movilización por bloque (A: 7,500 · B: 5,000 · C: 2,600 · D: 4,500) · Cómputos desde el 9 jun: defensa del voto", "A·B·C·D", "650 activados", "Veda 3 días · Jornada 6 jun · Cómputos (ref. inicio 9 jun)", "2,143"]], EVD=[["Sáb, jul 2026", "Jornada vecinal inaugural", "La Negreta", "B", "F1", "VERDE", "Formato: servicios + escucha + gestión. Plantilla replicable semanal"], ["Dom mensual", "Patitas con Todo", "Parque Tejeda", "D", "F1-F2", "VERDE", "Programa existente; presencia eficiente en zona PAN"], ["15-16 sep 2026", "Fiestas patrias", "El Pueblito y comunidades", "A", "F1", "VERDE", "Presencia comunitaria, sin propaganda personal masiva"], ["Sep 2026", "Informe de trabajo del comité", "Sede del comité / El Pueblito", "Todos", "F1", "AMBAR", "Es informe de dirigencia partidista, NO de precandidato. Sin frases de futuro electoral"], ["Oct 2026 (mes completo)", "Operación Anillo Nuevo: censo 32 secciones", "Puerta Real, Paseos del Bosque, Santuarios, series 1068-1087", "C", "F2", "VERDE", "Casa por casa: necesidades de fraccionamiento nuevo. Base de datos propia"], ["1-2 nov 2026", "Presencia en panteones", "El Pueblito y comunidades sur", "A", "F2", "VERDE", "Perfil bajo, acompañamiento. Nada de marca personal"], ["Dic 2026", "4 posadas del comité (una por bloque)", "Sedes por bloque", "Todos", "F2", "AMBAR", "Registro de asistentes desglosado. Gasto ordinario del partido, facturado"], ["6 ene 2027", "Rosca de Reyes por bloque", "Sedes por bloque", "Todos", "F2", "AMBAR", "Último evento antes de precampaña: cero clave electoral"], ["~19 ene 2027", "Registro de precandidatura + SNR", "IEEQ / partido", "—", "F3", "ROJO", "Sin registro no hay precampaña legal. Responsable de finanzas designado"], ["2a quincena ene 2027", "4 asambleas de militancia (gira de bloques)", "El Pueblito · La Negreta · Anillo · Candiles", "Todos", "F3", "ROJO", "Dirigidas a militancia, no a electorado. Todo gasto reportado a la UTF"], ["1a quincena feb 2027 (por confirmar)", "Fiesta Grande de El Pueblito", "Basílica y centro de El Pueblito", "A", "F3", "AMBAR", "Presencia personal/familiar en actos religiosos. PROHIBIDO mezclar precampaña con la fiesta"], ["~17 feb 2027", "Cierre de precampaña + informe de gastos", "—", "—", "F3", "ROJO", "Informe a la UTF en plazo. Errores aquí cuestan la candidatura"], ["4 mar 2027", "Aniversario del PRI (98 años)", "Sede del comité", "Interno", "F4", "AMBAR", "Evento de militancia en intercampaña: sin proselitismo público"], ["8 mar 2027", "Evento institucional 8M", "Por definir", "Interno", "F4", "AMBAR", "Agenda de mujeres del partido. Clave institucional estricta"], ["~3-7 abr 2027", "Registro de candidatura", "Consejo Municipal IEEQ", "—", "F4", "ROJO", "Expediente completo con firmas autógrafas. Prevenciones en 48 hrs"], ["~15 abr 2027", "ARRANQUE DE CAMPAÑA", "El Pueblito centro (plaza)", "A", "F5", "ROJO", "Arrancar en la casa. Desde aquí: topes de gastos y prorrateo"], ["30 abr 2027", "Día del Niño de campaña", "Parques por bloque", "B · C", "F5", "AMBAR", "Eventos sí; dádivas/regalos condicionados NO (compra de voto)"], ["10 may 2027", "Evento del Día de las Madres", "Por bloque", "B", "F5", "AMBAR", "Celebración sí, entregas masivas no"], ["May 2027", "Debates organizados por el IEEQ", "Sede IEEQ / municipal", "—", "F5", "VERDE", "Preparación de contraste con datos del análisis seccional"], ["~30-31 may 2027", "CIERRE DE CAMPAÑA", "El Pueblito centro", "A", "F5", "ROJO", "Antes del inicio de veda. Retiro de propaganda conforme a reglas"], ["~3-5 jun 2027", "VEDA", "—", "—", "F5", "ROJO", "Cero proselitismo, cero publicaciones de campaña en redes"], ["6 jun 2027", "JORNADA ELECTORAL", "94 secciones", "Todos", "—", "ROJO", "Representantes en 100% de casillas · movilización por bloque"], ["Desde 9 jun 2027", "Cómputos y defensa del voto", "Consejo Municipal IEEQ", "—", "—", "ROJO", "Actas cotejadas contra nuestras copias; equipo jurídico listo"]], HID=[["Declaratoria de inicio del proceso electoral local", "Sep-oct 2026", "Declaratoria 2023: 20 de octubre", "Cambia el cómputo de plazos: todos los días y horas se vuelven hábiles"], ["Aprobación del calendario oficial del IEEQ", "Oct 2026", "Aprobado al inicio del proceso", "ACTUALIZAR todo el plan con fechas definitivas"], ["Límite de convenios de coalición", "~19 ene 2027", "19 de enero de 2024", "Define si el PRI va solo o aliado; recalcular metas si hay alianza"], ["Precampañas (inicio-fin)", "~19 ene – 17 feb 2027", "19 ene – 17 feb 2024", "Registro de precandidatura, SNR, fiscalización activa, tope de gastos"], ["Separación de servidores públicos", "~Inicios de mar 2027", "3 de marzo de 2024", "No aplica a Adrián; vigilar rivales"], ["Registro de candidaturas (ayuntamientos)", "~3-7 abr 2027", "3 al 7 de abril de 2024", "Expediente completo: acta, credencial, residencia 3 años, 3 de 3, firmas autógrafas"], ["Campañas (ayuntamientos y diputaciones)", "~15 abr – 2 jun 2027", "15 abr – 29 may 2024 · máx. 45 días (art. 101 LEEQ)", "Todo el proselitismo permitido, con topes y reglas de propaganda"], ["Suspensión de propaganda gubernamental", "Del inicio de campaña a la jornada", "15 abr – 2 jun 2024", "Vigilar y documentar violaciones del gobierno municipal"], ["Veda electoral", "~3-5 jun 2027", "3 días previos", "Cero proselitismo y cero publicaciones de campaña"], ["JORNADA ELECTORAL", "Domingo 6 de junio de 2027", "2 de junio de 2024", "Gubernatura + ayuntamientos + diputaciones locales y federales"], ["Sesiones de cómputo", "Desde ~9 jun 2027", "Desde el 5 de junio de 2024", "Defensa del voto: representación jurídica y cotejo de actas"]];
+function fclass(f){return f.indexOf('F5')>-1?'f5':(f.indexOf('F3')>-1&&f.indexOf('F2')<0)?'f3':'f1';}
+var SEMC={VERDE:'#2e8b4f',AMBAR:'#e0a13a',ROJO:'#CE1126'};
+function renderCal(){
+ var s='<h2>Calendario maestro · jul 2026 → jun 2027</h2><div class="sub">Fechas 2027 = proyección basada en el ciclo 2023-2024. Se actualiza cuando el IEEQ apruebe el calendario oficial (previsto oct 2026).</div><div class="grid">';
+ CALD.forEach(function(m){
+  s+='<div class="card"><span class="mes">'+m[0]+'</span><span class="fbadge '+fclass(m[1])+'">'+m[1]+'</span>'
+   +'<div class="tema">'+m[2]+'</div><div>'+m[3]+'</div>'
+   +'<div class="kv"><b>Bloques:</b> '+m[4]+' &nbsp;·&nbsp; <b>Promotores:</b> '+m[5]+' &nbsp;·&nbsp; <b>Toques:</b> '+m[7]
+   +(m[6]!=='—'?'<br><b class="hito">Hito legal:</b> <span class="hito">'+m[6]+'</span>':'')+'</div></div>';
+ });
+ return s+'</div>';
+}
+function renderEv(){
+ var s='<h2>Eventos ancla (23)</h2><div class="sub">Semáforo legal: <span class="sem" style="background:#2e8b4f"></span>verde = sin restricción · <span class="sem" style="background:#e0a13a"></span>ámbar = cuidar clave y registro · <span class="sem" style="background:#CE1126"></span>rojo = obligación legal estricta. Fechas 2027 en proyección.</div><div class="grid">';
+ EVD.forEach(function(e){
+  s+='<div class="card" style="border-left:4px solid '+SEMC[e[5]]+'"><div class="ev-fecha">'+e[0]+'</div>'
+   +'<div class="ev-nom">'+e[1]+'</div>'
+   +'<div class="ev-meta">'+e[2]+' &nbsp;·&nbsp; Bloque: '+e[3]+' &nbsp;·&nbsp; Fase: '+e[4]+'</div>'
+   +'<div style="margin-top:6px">'+e[6]+'</div></div>';
+ });
+ return s+'</div>';
+}
+function renderHi(){
+ var s='<h2>Hitos y deadlines legales (11)</h2><div class="sub">Proyección basada en el Calendario del PEL 2023-2024 (IEEQ) y LEEQ art. 101. No constituye asesoría jurídica: cotejar contra el calendario oficial que publique el IEEQ.</div><div class="grid">';
+ HID.forEach(function(x){
+  s+='<div class="card"><div class="ev-nom" style="color:#fff">'+x[0]+'</div>'
+   +'<div class="ev-fecha" style="color:var(--blue)">'+x[1]+'</div>'
+   +'<div class="ev-meta">Referencia ciclo anterior: '+x[2]+'</div>'
+   +'<div style="margin-top:6px">'+x[3]+'</div></div>';
+ });
+ return s+'</div>';
+}
+document.querySelectorAll('.nv').forEach(function(b){b.onclick=function(){
+ document.querySelectorAll('.nv').forEach(function(x){x.classList.remove('on');});
+ b.classList.add('on');
+ var v=b.dataset.v;
+ var mapa=(v==='mapa');
+ document.getElementById('bar').style.display=mapa?'flex':'none';
+ document.getElementById('mapwrap').style.display=mapa?'block':'none';
+ var ct=document.getElementById('content');
+ ct.style.display=mapa?'none':'block';
+ if(v==='cal')ct.innerHTML=renderCal();
+ if(v==='ev')ct.innerHTML=renderEv();
+ if(v==='hi')ct.innerHTML=renderHi();
+ if(mapa){map.invalidateSize();}
+};});
 
 </script>
 </body>
